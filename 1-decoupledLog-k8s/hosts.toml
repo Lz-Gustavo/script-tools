@@ -1,0 +1,23 @@
+[loadgen]
+loadgen1 ansible_host=pc832.emulab.net ansible_user=user
+
+[leader]
+leader1 ansible_host=pc827.emulab.net ansible_user=user
+
+[followers]
+follower1 ansible_host=pc828.emulab.net ansible_user=user
+follower2 ansible_host=pc823.emulab.net ansible_user=user
+
+[recov]
+recov1 ansible_host=pc832.emulab.net ansible_user=user
+
+[all:vars]
+ansible_python_interpreter=/usr/bin/python3
+githubkey=TODO
+
+[all:config]
+rep=3
+svrIps=["127.0.0.1:11000", "127.0.0.1:11001", "127.0.0.1:11002"]
+localip="127.0.0.1"
+udpport=15000
+thinkingTimeMsec=10

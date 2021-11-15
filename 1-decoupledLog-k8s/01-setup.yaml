@@ -1,0 +1,11 @@
+- hosts: all
+  become: yes
+  tasks:
+
+    - name: set up authorized keys for {{ ansible_user }} user
+      authorized_key: user="{{ ansible_user }}" key="{{ item }}"
+      with_file:
+        - ~/.ssh/emulab.pub
+
+    - name: install go
+      shell: ./users/user/install-go.sh

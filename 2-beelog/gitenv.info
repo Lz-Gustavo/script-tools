@@ -1,0 +1,4 @@
+export GIT_TERMINAL_PROMPT=1
+export PATH=$PATH:/usr/lib/go-1.15/bin
+export GOPATH=/users/user/go
+export GOMODCACHE=/tmp/gomod
