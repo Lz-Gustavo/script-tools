@@ -1,7 +1,7 @@
 #!/bin/bash
 
 user=user
-etcdHostname="10.10.1.3"
+etcdHostname="10.10.1.2"
 path=/users/${user}/go/src/go-ycsb
 
 
@@ -20,17 +20,19 @@ fi
 
 echo "running..."
 for workload in ${workloads[*]}; do
-	for t in ${threadCounts[*]}; do	
+	for t in ${threadCounts[*]}; do
 		echo "launching server on remote"
-		ssh ${user}@${etcdHostname} "/users/${user}/experiments/run-singlenode.sh"
+		ssh root@${etcdHostname} "/users/${user}/experiment/run-singlenode.sh" &
+		sleep 5s
 
 		echo "executing $workload for $t clients"
 		$path/bin/go-ycsb run etcd -P $path/workloads/${workload} -p threadcount=${t} -p recordcount=${numDiffKeys} -p operationcount=${numOps} -p target=${targetThr} -p etcd.hostname=${etcdHostname}
 
 		echo "killing server on remote and copying results"
-		ssh ${user}@${etcdHostname} "killall -9 etcd -u ${user}; mv /tmp/etcd/*.out $1/${workload}/"
+		mkdir -p $1/${workload}/${t}c
+		ssh root@${etcdHostname} "killall -9 etcd -u root; mv /tmp/*.out $1/${workload}/${t}c/"
 
-		echo "finished ${t} client threads..."; echo ""		
+		echo "finished ${t} client threads..."; echo ""
 	done
 done
 
