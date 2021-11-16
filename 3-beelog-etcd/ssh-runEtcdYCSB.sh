@@ -30,7 +30,7 @@ for workload in ${workloads[*]}; do
 
 		echo "killing server on remote and copying results"
 		mkdir -p $1/${workload}/${t}c
-		ssh root@${etcdHostname} "killall -9 etcd -u root; mv /tmp/*.out $1/${workload}/${t}c/"
+		ssh root@${etcdHostname} "killall etcd -u root -w; mv /tmp/*.out $1/${workload}/${t}c/"
 
 		echo "finished ${t} client threads..."; echo ""
 	done
