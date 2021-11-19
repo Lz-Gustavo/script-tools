@@ -22,7 +22,7 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 			fd.close()
 
 			msr = []
-			for j in range(0, len(text), 2):
+			for j in range(0, len(text)-1, 2):
 				start = int(text[j])
 				end = int(text[j+1])
 				msr.append(end - start)
@@ -52,7 +52,7 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 
 			# define the iteration range
 			max = len(msr_bl)
-			if len(msr_etcd) > max:
+			if len(msr_etcd) < max:
 				max = len(msr_etcd)
 
 			msr = []
@@ -66,6 +66,7 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 	for i in dataLatency:
 		arr = np.array(i)
 		avelat.append(float(np.mean(arr)))
+		#avelat.append(float(np.percentile(arr, 90)))
 	return avelat
 
 
@@ -94,23 +95,35 @@ def CalculateAveThroughput(rootFolder: str):
 
 
 def main():
-	# TODO: copied from plot-curve, modify it appropriately after testing
-
-	img_identifier = "singlenode"
+	img_identifier = "singlenode-avelat"
 	thr_fname = [
-		#"./defaultlog-run3/workloada/throughput.out",
-		"./beelog-100/workloada/throughput.out",
-		"./beelog-1k/workloada/throughput.out",
+		"./sl/workloada",
+		"./pl-1/workloada",
+		"./pl-10/workloada",
+		"./pl-100/workloada",
+		"./pl-1k/workloada",
 	]
 
 	lat_fname = [
-		#"./defaultlog-run3/workloada",
-		"./beelog-100/workloada",
-		"./beelog-1k/workloada",
+		"./sl/workloada",
+		"./pl-1/workloada",
+		"./pl-10/workloada",
+		"./pl-100/workloada",
+		"./pl-1k/workloada",
+	]
+
+	bl_lat_fname = [
+		"",
+		"./pl-1/workloada",
+		"./pl-10/workloada",
+		"./pl-100/workloada",
+		"./pl-1k/workloada",
 	]
 
 	curve_names = [
-		#"SL",
+		"SL",
+		"PL-1",
+		"PL-10",
 		"PL-100",
 		"PL-1k",
 	]
@@ -121,7 +134,7 @@ def main():
 
 	for i in range(0, len(thr_fname)):
 		thr = CalculateAveThroughput(thr_fname[i])
-		lat = CalculateAveLatency(lat_fname[i])
+		lat = CalculateAveLatency(lat_fname[i], bool(bl_lat_fname[i] != ""))
 
 		np_thr = np.array(thr)
 		np_lat = np.array(lat)
