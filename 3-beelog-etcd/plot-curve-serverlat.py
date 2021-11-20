@@ -5,8 +5,8 @@ import numpy as np
 
 
 clients = [9, 17, 25, 33, 41, 49, 57, 65]
-warmUpOffset = 5
-tailOffset = 5
+warmUpOffset = 4 # always even
+tailOffset = 4
 
 
 def CalculateAveLatency(rootFolder: str, beelog: bool):
@@ -21,8 +21,12 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 			text = fd.readlines()
 			fd.close()
 
+			ln = len(text) - tailOffset
+			if ln % 2 != 0:
+				ln -= 1
+
 			msr = []
-			for j in range(0, len(text)-1, 2):
+			for j in range(warmUpOffset, ln, 2):
 				start = int(text[j])
 				end = int(text[j+1])
 				msr.append(end - start)
@@ -38,7 +42,6 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 			for j in text:
 				msr_etcd.append(int(j))
 
-
 			fd = open(rootFolder + "/" + str(i) + "c/bl-latency.out")
 			text = fd.readlines()
 			fd.close()
@@ -51,9 +54,9 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 				msr_bl.append(int(lat[len(lat)-1]))
 
 			# define the iteration range
-			max = len(msr_bl)
+			max = len(msr_bl) - tailOffset
 			if len(msr_etcd) < max:
-				max = len(msr_etcd)
+				max = len(msr_etcd) - tailOffset
 
 			msr = []
 			for j in range(0, max):
@@ -94,8 +97,17 @@ def CalculateAveThroughput(rootFolder: str):
 	return avethr
 
 
+def SaveIntoFile(arr: list, fn: str):
+	fd = open(fn, 'w')
+	for fn in arr:
+		for f in fn:
+			fd.write(str(f) + ",")
+		fd.write("\n")	
+	fd.close()
+
+
 def main():
-	img_identifier = "singlenode-avelat"
+	exp_identifier = "d430-avelat-3"
 	thr_fname = [
 		"./sl/workloada",
 		"./pl-1/workloada",
@@ -132,6 +144,7 @@ def main():
 	plt.xlabel('Throughput (k cmds/s)')
 	plt.ylabel('Latency (ms)')
 
+	thrs, lats = [], []
 	for i in range(0, len(thr_fname)):
 		thr = CalculateAveThroughput(thr_fname[i])
 		lat = CalculateAveLatency(lat_fname[i], bool(bl_lat_fname[i] != ""))
@@ -141,12 +154,15 @@ def main():
 
 		thr = np.divide(np_thr, 1000)
 		lat = np.divide(np_lat, 1000000) # ns -> ms
-		print(len(thr))
-		print(len(lat))
+		thrs.append(thr)
+		lats.append(lat)
 		plt.plot(thr, lat, config_formats[i], label=curve_names[i])
 
+	SaveIntoFile(thrs, "csv/" + exp_identifier + "-throughput.csv")
+	SaveIntoFile(lats, "csv/" + exp_identifier + "-latency.csv")
+
 	plt.legend(loc='best')
-	fname = 'graphs/workA-' + img_identifier + '.png'
+	fname = 'graphs/workA-' + exp_identifier + '.png'
 	print("finished", fname, "...")
 	plt.savefig(fname)
 	plt.clf()
