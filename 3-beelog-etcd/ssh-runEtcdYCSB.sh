@@ -3,15 +3,14 @@
 user=user
 etcdHostname="10.10.1.2"
 path=/users/${user}/go/src/go-ycsb
-
+measurepath=/tmp
 
 workloads=("workloada")
 threadCounts=(9 17 25 33 41 49 57 65)
 
 numDiffKeys=1000000 # 1kk
 targetThr=9000
-numOps=480000
-
+numOps=240000
 
 if [[ $# -ne 1 ]]; then
 	echo "usage: $0 'rootFolder'"
@@ -30,7 +29,7 @@ for workload in ${workloads[*]}; do
 
 		echo "killing server on remote and copying results"
 		mkdir -p $1/${workload}/${t}c
-		ssh root@${etcdHostname} "killall etcd -u root -w; mv /tmp/*.out $1/${workload}/${t}c/"
+		ssh root@${etcdHostname} "killall etcd -u root -w; mv ${measurepath}/*.out $1/${workload}/${t}c/"
 
 		echo "finished ${t} client threads..."; echo ""
 	done
