@@ -10,11 +10,16 @@ measurepath=/tmp
 stateFolder=${diskpath}/etcd
 beelogFolder=${diskpath}/beelog
 
+# 0: disabled WAL
+# 1: standard WAL
+# 2: standard batch WAL
+# 3: beelog
+export ETCD_LOG_CONFIG=3
+export ETCD_LOG_BATCH_SIZE=1000
+
 export ETCD_THR_FILE=${measurepath}/throughput.out
 export ETCD_LAT_FILE=${measurepath}/latency.out
-export ETCD_BEELOG_ENABLE=false
 
-export ETCD_BEELOG_BATCH_SIZE=1000
 export ETCD_BEELOG_CONC_LEVEL=2
 export ETCD_BEELOG_LOGS_DIR=${beelogFolder}
 export ETCD_BEELOG_LAT_FILE=${measurepath}/bl-latency.out
