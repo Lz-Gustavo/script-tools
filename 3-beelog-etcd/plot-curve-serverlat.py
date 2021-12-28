@@ -48,20 +48,18 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 
 			msr_bl = []
 			for j in text:
-				lat = j.split(",")
-
-				# final lat measure from beelog, e.g. 1234 of 0000,0000,0000,1234
-				msr_bl.append(int(lat[len(lat)-1]))
-
-			# define the iteration range
-			max = len(msr_bl) - tailOffset
-			if len(msr_etcd) < max:
-				max = len(msr_etcd) - tailOffset
+				msr_bl.append(int(j)
 
 			msr = []
-			for j in range(0, max):
+			bl_cursor = 0
+			# msr_etcd will always be > msr_bl
+			for j in range(warmUpOffset, len(msr_etcd) - tailOffset):
+				if msr_etcd[j] == 0:
+					bl_cursor += 1
+					continue
+
 				start = int(msr_etcd[j])
-				end = int(msr_bl[j])
+				end = int(msr_bl[bl_cursor])
 				msr.append(end - start)
 			dataLatency.append(msr)
 
