@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-clients = [9, 17, 25, 33, 41, 49, 57, 65]
+targets = [2000, 4000, 8000, 16000]
 warmUpOffset = 4 # always even
 tailOffset = 4
 
@@ -16,8 +16,8 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 	"""
 	dataLatency = []
 	if not beelog:
-		for i in clients:
-			fd = open(rootFolder + "/" + str(i) + "c/latency.out")
+		for i in targets:
+			fd = open(rootFolder + "/" + str(i) + "thr/latency.out")
 			text = fd.readlines()
 			fd.close()
 
@@ -33,8 +33,8 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 			dataLatency.append(msr)
 
 	else:
-		for i in clients:
-			fd = open(rootFolder + "/" + str(i) + "c/latency.out")
+		for i in targets:
+			fd = open(rootFolder + "/" + str(i) + "thr/latency.out")
 			text = fd.readlines()
 			fd.close()
 
@@ -42,20 +42,22 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 			for j in text:
 				msr_etcd.append(int(j))
 
-			fd = open(rootFolder + "/" + str(i) + "c/bl-latency.out")
+			fd = open(rootFolder + "/" + str(i) + "thr/bl-latency.out")
 			text = fd.readlines()
 			fd.close()
 
 			msr_bl = []
 			for j in text:
-				msr_bl.append(int(j)
+				msr_bl.append(int(j))
 
 			msr = []
 			bl_cursor = 0
-			# msr_etcd will always be > msr_bl
-			for j in range(warmUpOffset, len(msr_etcd) - tailOffset):
+			# msr_etcd will always be > msr_bl, not considering warmupOffset on bl
+			for j in range(0, len(msr_etcd) - tailOffset):
 				if msr_etcd[j] == 0:
 					bl_cursor += 1
+					if bl_cursor >= len(msr_bl):
+						break
 					continue
 
 				start = int(msr_etcd[j])
@@ -76,8 +78,8 @@ def CalculateAveThroughput(rootFolder: str):
 		Extract thoughput data from each client execution on rootFolder/
 	"""
 	dataThroughput = []
-	for i in clients:
-		fd = open(rootFolder + "/" + str(i) + "c/throughput.out")
+	for i in targets:
+		fd = open(rootFolder + "/" + str(i) + "thr/throughput.out")
 		text = fd.readlines()
 		fd.close()
 
