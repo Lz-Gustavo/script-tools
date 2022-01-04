@@ -16,6 +16,7 @@ beelogFolder=${diskpath}/beelog
 # 3: beelog
 export ETCD_LOG_CONFIG=3
 export ETCD_LOG_BATCH_SIZE=1000
+export ETCD_SYNC_IO=false
 
 export ETCD_THR_FILE=${measurepath}/throughput.out
 export ETCD_LAT_FILE=${measurepath}/latency.out

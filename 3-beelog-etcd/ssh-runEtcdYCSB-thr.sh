@@ -6,11 +6,13 @@ path=/users/${user}/go/src/go-ycsb
 measurepath=/tmp
 
 numDiffKeys=1000000 # 1kk
-numOps=240000
-threads=25
+threads=100
 
 workloads=("workloadaprime")
-targetThrs=(2000 3000 4000)
+
+# unique size arrays
+numOps=(100000 200000 300000 500000 500000)
+targetThrs=(1000 2000 4000 8000 16000)
 
 if [[ $# -ne 1 ]]; then
 	echo "usage: $0 'rootFolder'"
@@ -19,13 +21,16 @@ fi
 
 echo "running..."
 for workload in ${workloads[*]}; do
-	for t in ${targetThrs[*]}; do
+	for (( i = 0; i < ${#targetThrs[*]}; i++ )); do
+		t=${targetThrs[$i]}
+		n=${numOps[$i]}
+
 		echo "launching server on remote"
 		ssh root@${etcdHostname} "/users/${user}/experiment/run-singlenode.sh" &
 		sleep 5s
 
 		echo "executing $workload for $t target throughput"
-		$path/bin/go-ycsb run etcd -P $path/workloads/${workload} -p target=${t} -p threadcount=${threads} -p recordcount=${numDiffKeys} -p operationcount=${numOps} -p etcd.hostname=${etcdHostname} -p etcd.thinktime=0
+		$path/bin/go-ycsb run etcd -P $path/workloads/${workload} -p target=${t} -p threadcount=${threads} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.thinktime=0
 
 		echo "killing server on remote and copying results"
 		mkdir -p $1/${workload}/${t}thr
