@@ -20,6 +20,7 @@ export ETCD_SYNC_IO=false
 
 export ETCD_THR_FILE=${measurepath}/throughput.out
 export ETCD_LAT_FILE=${measurepath}/latency.out
+export ETCD_BATCHWAL_LAT_FILE=${measurepath}/bw-latency.out
 
 export ETCD_BEELOG_CONC_LEVEL=2
 export ETCD_BEELOG_LOGS_DIR=${beelogFolder}
