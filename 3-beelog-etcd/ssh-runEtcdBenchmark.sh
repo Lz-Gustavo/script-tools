@@ -11,28 +11,31 @@ measurepath=/tmp
 keySize=128
 valueSize=512
 numDiffKeys=1000000 # 1kk
-numOps=500000 # 500k
 conns=20
 
+numOps=(3000 30000 200000 500000 500000)
 clients=(10 100 300 500 1000)
 operations=("put" "range")
 
 echo "running..."
 for op in ${operations[*]}; do
-    for cl in ${clients[*]}; do
+    for (( i = 0; i < ${#clients[*]}; i++ )); do
+        cl=${clients[$i]}
+		n=${numOps[$i]}
+
         echo "launching server on remote"
         ssh root@${etcdHostname} "${nodeScript}" &
         sleep 5s
 
         echo "executing for $cl concurrent clients"
         if [[ ${op} -eq "put" ]]; then
-            benchmark --endpoints=${etcdHostname}:2379 --target-leader --conns=${conns} --clients=${cl} \
-                put --key-space-size=${numDiffKeys} --key-size=${keySize} --precise --sequential-keys --total=${numOps} --val-size=${valueSize} \
+            /users/${user}/go/bin/benchmark --endpoints=${etcdHostname}:2379 --target-leader --conns=${conns} --clients=${cl} \
+                put --key-space-size=${numDiffKeys} --key-size=${keySize} --precise --sequential-keys --total=${n} --val-size=${valueSize} \
                 > ${measurepath}/bench.out
 
         else
-            benchmark --endpoints=${etcdHostname}:2379 --target-leader --conns=${conns} --clients=${cl} \
-                range TODO --precise --consistency=l --total=${numOps} \
+            /users/${user}/go/bin/benchmark --endpoints=${etcdHostname}:2379 --target-leader --conns=${conns} --clients=${cl} \
+                range TODO --precise --consistency=l --total=${n} \
                 > ${measurepath}/bench.out
         fi
 
