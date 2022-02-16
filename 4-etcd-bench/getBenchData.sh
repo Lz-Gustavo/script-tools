@@ -12,17 +12,22 @@ else
     rootFolder=$1
 fi
 
-
 clients=(10 100 300 500 1000 1500 2000 5000 10000)
 operations=("put" "range")
 
 echo "running..."
 for op in ${operations[*]}; do
+    latFn=${rootFolder}/${op}-latency.out
+    thrFn=${rootFolder}/${op}-throughput.out
+
+    > ${latFn} && > ${thrFn}
+
     for (( i = 0; i < ${#clients[*]}; i++ )); do
         cl=${clients[$i]}
         fn=${rootFolder}/${op}/${cl}c/bench.out
 
         cat ${fn} | grep Average: | sed 's/Average://g; s/secs.//g; s/[[:space:]]//g' >> ${rootFolder}/${op}-latency.out
+        cat ${fn} | grep Requests/sec: | sed 's/Requests\/sec://g; s/[[:space:]]//g' >> ${rootFolder}/${op}-throughput.out
     done
 done
 echo "finished!"
