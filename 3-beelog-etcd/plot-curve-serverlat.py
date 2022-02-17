@@ -5,8 +5,12 @@ import numpy as np
 
 
 targets = [2000, 4000, 8000, 16000]
-warmUpOffset = 4 # always even
-tailOffset = 4
+
+latWarmUpOffset = 0 # always even
+latTailOffset = 2
+
+thrWarmUpOffset = 0
+thrTailOffset = 0
 
 
 def CalculateAveLatency(rootFolder: str, beelog: bool):
@@ -21,12 +25,12 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 			text = fd.readlines()
 			fd.close()
 
-			ln = len(text) - tailOffset
+			ln = len(text) - latTailOffset
 			if ln % 2 != 0:
 				ln -= 1
 
 			msr = []
-			for j in range(warmUpOffset, ln, 2):
+			for j in range(latWarmUpOffset, ln, 2):
 				start = int(text[j])
 				end = int(text[j+1])
 				msr.append(end - start)
@@ -53,7 +57,7 @@ def CalculateAveLatency(rootFolder: str, beelog: bool):
 			msr = []
 			bl_cursor = 0
 			# msr_etcd will always be > msr_bl, not considering warmupOffset on bl
-			for j in range(0, len(msr_etcd) - tailOffset):
+			for j in range(0, len(msr_etcd) - latTailOffset):
 				if msr_etcd[j] == 0:
 					bl_cursor += 1
 					if bl_cursor >= len(msr_bl):
@@ -84,10 +88,10 @@ def CalculateAveThroughput(rootFolder: str):
 		fd.close()
 
 		msr = []
-		for j in range(warmUpOffset, len(text) - tailOffset):
+		for j in range(thrWarmUpOffset, len(text) - thrTailOffset):
 			n = int(text[j])
-			if n > 0:
-				msr.append(n)
+			#if n > 0:
+			msr.append(n)
 		dataThroughput.append(msr)
 
 	avethr = []

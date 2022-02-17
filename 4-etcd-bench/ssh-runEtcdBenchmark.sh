@@ -42,6 +42,7 @@ for op in ${operations[*]}; do
         echo "killing server on remote and copying results"
         mkdir -p ${rootFolder}/${op}/${cl}c
         ssh root@${etcdHostname} "killall etcd -u root -w; mv ${measurepath}/*.out ${rootFolder}/${op}/${cl}c/"
+        mv ${measurepath}/*.out ${rootFolder}/${op}/${cl}c/
 
         echo "finished ${cl} clients..."; echo ""
     done
