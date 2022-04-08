@@ -2,26 +2,27 @@
 
 user=user
 
-rootFolder=/users/${user}/experiment
+rootFolder=$(pwd)
 nodeScript=${rootFolder}/run-singlenode.sh
 
 etcdHostname="10.10.1.2"
 measurepath=/tmp
 
-keySize=128
-valueSize=512
-numDiffKeys=1000000 # 1kk
-conns=20
+keySize=8
+valueSize=128
 
-numOps=(3000 30000 200000 500000 500000)
-clients=(10 100 300 500 1000)
+numDiffKeys=1000000 # 1kk
+conns=1
+
+numOps=(8000 20000 25000 50000 50000 50000 50000 50000 50000 50000)
+clients=(100 300 500 1000 1500 2000 5000 10000 15000 20000)
 operations=("put" "range")
 
 echo "running..."
 for op in ${operations[*]}; do
     for (( i = 0; i < ${#clients[*]}; i++ )); do
         cl=${clients[$i]}
-		n=${numOps[$i]}
+        n=${numOps[$i]}
 
         echo "launching server on remote"
         ssh root@${etcdHostname} "${nodeScript}" &
@@ -42,10 +43,10 @@ for op in ${operations[*]}; do
         echo "killing server on remote and copying results"
         mkdir -p ${rootFolder}/${op}/${cl}c
         ssh root@${etcdHostname} "killall etcd -u root -w; mv ${measurepath}/*.out ${rootFolder}/${op}/${cl}c/"
-        mv ${measurepath}/*.out ${rootFolder}/${op}/${cl}c/
 
         echo "finished ${cl} clients..."; echo ""
     done
 done
 
 echo "finished!"
+

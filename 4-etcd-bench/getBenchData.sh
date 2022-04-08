@@ -12,7 +12,7 @@ else
     rootFolder=$1
 fi
 
-clients=(10 100 300 500 1000 1500 2000 5000 10000)
+clients=(100 300 500 1000 1500 2000 5000 10000 15000 20000)
 operations=("put" "range")
 
 echo "running..."
