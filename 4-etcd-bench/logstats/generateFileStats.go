@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,96 +10,148 @@ import (
 )
 
 const (
-	logSizeFname  = "logsize.out"
-	logCountFname = "logcounts.out"
-	logFileExt    = ".log"
+	logSizeFname    = "logsize.out"
+	logBatchesFname = "logbatches.out"
+	logCountFname   = "logcounts.out"
+
+	logFileExt = ".log"
+	walFileExt = ".wal"
 )
 
 var folderNames = []string{
-	"../logs-PL-10/",
+	"../1/pl-1/",
+	"../1/pl-10/",
+	"../1/pl-100/",
+	"../1/pl-500/",
+
+	"../1/pl-1-10keys/",
+	"../1/pl-10-10keys/",
+	"../1/pl-100-10keys/",
+	"../1/pl-500-10keys/",
+
+	"../1/sl-1/",
+	"../1/sl-1-10keys/",
 }
 
-// e.g. 10-15 -> 6 commands
-func getCommandCountFromName(name string) (int, error) {
+// e.g. 10-15-2 -> 6 commands batch, 2 commands within
+func getBatchAndCommandCountFromName(name string) (int, int, error) {
 	logIndexes := strings.Split(name, "-")
-	if len(logIndexes) != 2 {
-		return 0, nil
+	if len(logIndexes) != 3 {
+		return 0, 0, nil
 	}
 
 	first, err := strconv.Atoi(logIndexes[0])
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 
 	last, err := strconv.Atoi(logIndexes[1])
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
-	return last - first + 1, nil
+
+	count, err := strconv.Atoi(logIndexes[2])
+	if err != nil {
+		return 0, 0, err
+	}
+	return last - first + 1, count, nil
 }
 
-func generateLogTotalSize(folder string) int64 {
-	totalSize := int64(0)
+func GenerateLogStats(folder string) (*LogStats, error) {
+	stats := newLogStats()
 
 	walkfn := filepath.WalkFunc(func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
 
-		if filepath.Ext(info.Name()) != logFileExt {
+		if ext := filepath.Ext(info.Name()); ext != logFileExt && ext != walFileExt {
 			return nil
 		}
-
-		totalSize += info.Size()
-		return nil
-	})
-	filepath.Walk(folder, walkfn)
-	return totalSize
-}
-
-func generateLogCommandsCount(folder string) ([]int, error) {
-	commandCounts := make([]int, 0)
-
-	walkfn := filepath.WalkFunc(func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if filepath.Ext(info.Name()) != logFileExt {
-			return nil
-		}
+		stats.TotalSize += info.Size()
 
 		name := strings.TrimSuffix(info.Name(), filepath.Ext(info.Name()))
-		count, err := getCommandCountFromName(name)
+		batch, count, err := getBatchAndCommandCountFromName(name)
 		if err != nil {
 			return err
 		}
 
-		if count > 0 {
-			commandCounts = append(commandCounts, count)
-		}
+		stats.BatchSizes = append(stats.BatchSizes, batch)
+		stats.CommandCounts = append(stats.CommandCounts, count)
 		return nil
 	})
 	err := filepath.Walk(folder, walkfn)
-	return commandCounts, err
+	return stats, err
 }
 
 func main() {
 	for _, folder := range folderNames {
-		size := generateLogTotalSize(folder)
-		counts, err := generateLogCommandsCount(folder)
+		stats, err := GenerateLogStats(folder)
 		if err != nil {
-			log.Fatalf("failed calculating counts on %s, err: %s\n", folder, err.Error())
+			log.Fatalf("failed calculating log stats on %s, err: %s\n", folder, err.Error())
 		}
 
-		fn := folder + logSizeFname
-		if err := writeTotalSizeIntoFile(size, fn); err != nil {
-			log.Fatalf("failed writing size on %s, err: %s\n", fn, err.Error())
-		}
-
-		fn = folder + logCountFname
-		if err := writeCommandCountsIntoFile(counts, fn); err != nil {
-			log.Fatalf("failed writing size on %s, err: %s\n", fn, err.Error())
+		if err := stats.WriteToFile(folder); err != nil {
+			log.Fatalf("failed writing log stats, err: %s\n", err.Error())
 		}
 	}
+}
+
+type LogStats struct {
+	BatchSizes    []int
+	CommandCounts []int
+	TotalSize     int64
+}
+
+func newLogStats() *LogStats {
+	return &LogStats{
+		BatchSizes:    make([]int, 0),
+		CommandCounts: make([]int, 0),
+	}
+}
+
+func (stats *LogStats) WriteToFile(folder string) error {
+	fn := folder + logSizeFname
+	if err := writeInt64IntoFile(stats.TotalSize, fn); err != nil {
+		return err
+	}
+
+	fn = folder + logBatchesFname
+	if err := writeIntSliceIntoFile(stats.BatchSizes, fn); err != nil {
+		return err
+	}
+
+	fn = folder + logCountFname
+	if err := writeIntSliceIntoFile(stats.CommandCounts, fn); err != nil {
+		return err
+	}
+	return nil
+}
+
+func writeInt64IntoFile(size int64, fname string) error {
+	fd, err := os.OpenFile(fname, os.O_CREATE|os.O_TRUNC|os.O_WRONLY|os.O_APPEND, 0600)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
+
+	if _, err := fmt.Fprintf(fd, "%d\n", size); err != nil {
+		return err
+	}
+	return nil
+}
+
+func writeIntSliceIntoFile(counts []int, fname string) error {
+	fd, err := os.OpenFile(fname, os.O_CREATE|os.O_TRUNC|os.O_WRONLY|os.O_APPEND, 0600)
+	if err != nil {
+		return err
+	}
+	defer fd.Close()
+
+	for _, c := range counts {
+		if _, err := fmt.Fprintf(fd, "%d\n", c); err != nil {
+			return err
+		}
+	}
+	return nil
 }
