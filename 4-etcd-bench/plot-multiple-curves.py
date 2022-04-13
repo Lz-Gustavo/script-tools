@@ -8,7 +8,7 @@ batch_size = "100"
 sub_folder = "1"
 
 exp_identifier = "batch" + batch_size + "-" + sub_folder
-title = '[100 300 500 1k 1.5k 2k 5k clients]'
+title = '[100 300 500 1k 1.5k 2k 5k] clients'
 
 
 def GetArrayFromFile(filename: str):
