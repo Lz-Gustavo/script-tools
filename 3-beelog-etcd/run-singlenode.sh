@@ -18,6 +18,12 @@ export ETCD_LOG_CONFIG=3
 export ETCD_LOG_BATCH_SIZE=1000
 export ETCD_SYNC_IO=false
 
+# 0: naive
+export ETCD_BEELOG_RECOV_CONFIG=0
+
+export ETCD_RECOVERY_MSR_ENABLED=false
+export ETCD_RECOVERY_MSR_FILE=/tmp/recov-time.out
+
 export ETCD_THR_FILE=${measurepath}/throughput.out
 export ETCD_LAT_FILE=${measurepath}/latency.out
 export ETCD_BATCHWAL_LAT_FILE=${measurepath}/bw-latency.out
@@ -26,7 +32,6 @@ export ETCD_BEELOG_CONC_LEVEL=2
 export ETCD_BEELOG_LOGS_DIR=${beelogFolder}
 export ETCD_BEELOG_LAT_FILE=${measurepath}/bl-latency.out
 export ETCD_BEELOG_PARALLEL_IO=false
-export ETCD_BEELOG_SECOND_DISK_LOGS_DIR=/media/disk2/beelog
 
 export ETCD_DATA_DIR=${stateFolder}/data
 export ETCD_WAL_DIR=${stateFolder}/wal
