@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-isRemoteExecution=true
+isRemoteExecution=false
 etcdHostname="10.10.1.2"
 measureFile=/tmp/recov-time.out
 
@@ -11,8 +11,8 @@ iterations=10
 recovPath=/tmp/recov
 rootFolder=$(pwd)
 
-logFiles=${rootFolder}/logs.tar.gz
-nodeScript=${rootFolder}/run-singlenode.sh
+logFiles=logs.tar.gz
+nodeScript=run-singlenode.sh
 etcdPath=/media/disk1/etcd
 
 main() {
@@ -49,10 +49,10 @@ doRemoteExecution() {
     ssh root@${etcdHostname} "rm ${recovPath}/*; rm -r ${etcdPath}/*"
 
     echo "#${i}: preparing files"
-    ssh root@${etcdHostname} "mkdir -p ${recovPath}; cp ${logFiles} ${recovPath}; tar -xzvf ${recovPath}/logs.tar.gz -C ${recovPath} --strip-components 3; rm ${recovPath}/logs.tar.gz"
+    ssh root@${etcdHostname} "mkdir -p ${recovPath}; cp ${rootFolder}/${logFiles} ${recovPath}; tar -xzvf ${recovPath}/${logFiles} -C ${recovPath} --strip-components 3; rm ${recovPath}/${logFiles}"
 
     echo "#${i}: launching server on remote"
-    ssh root@${etcdHostname} "${nodeScript}" &
+    ssh root@${etcdHostname} "${rootFolder}/${nodeScript}" &
     sleep ${sleepDurationSec}s
 
     echo "#${i}: killing server on remote and copying results"
@@ -69,10 +69,10 @@ doLocalExecution() {
     rm ${recovPath}/* && rm -r ${etcdPath}/*
 
     echo "#${i}: preparing files"
-    mkdir -p ${recovPath} && cp ${logFiles} ${recovPath} && tar -xzvf ${recovPath}/logs.tar.gz -C ${recovPath} --strip-components 3 && rm ${recovPath}/logs.tar.gz
+    mkdir -p ${recovPath} && cp ${rootFolder}/${logFiles} ${recovPath} && tar -xzvf ${recovPath}/${logFiles} -C ${recovPath} --strip-components 3 && rm ${recovPath}/${logFiles}
 
     echo "#${i}: launching local server"
-    ${nodeScript} &
+    ${rootFolder}/${nodeScript} &
     sleep ${sleepDurationSec}s
 
     echo "#${i}: killing server and copying results"
