@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 
 iterations=10
-recov_file_name="-recov-time.out"
+recov_fname="-recov-time.out"
+output_csv_fname="recov-results.csv"
 
 
 def ExtractData(filename):
@@ -22,12 +23,62 @@ def main():
         {
             "name": "PL-300",
             "workload": "rand10",
-            "path": "/path/to/files"
+            "path": "1-rand10/pl-300/"
         },
         {
             "name": "PL-600",
             "workload": "rand10",
-            "path": "/path/to/files"
+            "path": "1-rand10/pl-600/"
+        },
+        {
+            "name": "PL-900",
+            "workload": "rand10",
+            "path": "1-rand10/pl-900/"
+        },
+        {
+            "name": "PL-1200",
+            "workload": "rand10",
+            "path": "1-rand10/pl-1200/"
+        },
+        {
+            "name": "PL-300",
+            "workload": "seq1M",
+            "path": "2-seq1kk/pl-300/"
+        },
+        {
+            "name": "PL-600",
+            "workload": "seq1M",
+            "path": "2-seq1kk/pl-600/"
+        },
+        {
+            "name": "PL-900",
+            "workload": "seq1M",
+            "path": "2-seq1kk/pl-900/"
+        },
+        {
+            "name": "PL-1200",
+            "workload": "seq1M",
+            "path": "2-seq1kk/pl-1200/"
+        },
+        {
+            "name": "PL-300",
+            "workload": "rand500",
+            "path": "3-rand500/pl-300/"
+        },
+        {
+            "name": "PL-600",
+            "workload": "rand500",
+            "path": "3-rand500/pl-600/"
+        },
+        {
+            "name": "PL-900",
+            "workload": "rand500",
+            "path": "3-rand500/pl-900/"
+        },
+        {
+            "name": "PL-1200",
+            "workload": "rand500",
+            "path": "3-rand500/pl-1200/"
         }
     ]
 
@@ -53,7 +104,7 @@ def main():
         receive_times_ns = []
         apply_times_ns = []
         for i in range(0, iterations):
-            fn = path + "/" + str(i) + recov_file_name
+            fn = path + "/" + str(i) + recov_fname
             data = ExtractData(fn)
             if len(data) != 4:
                 print("incomplete data returned")
@@ -75,6 +126,7 @@ def main():
         stddev_receive_times.append(np.std(np_receive_times))
         stddev_apply_times.append(np.std(np_apply_times))
 
+
     column_names = ["Name", "Workload", "Read_time(ns)", "Read_std_dev", "Receive_time(ns)", "Receive_std_dev", "Apply_time(ns)", "Apply_std_dev"]
     data = {
         column_names[0]: names,
@@ -89,8 +141,7 @@ def main():
 
     df = pd.DataFrame(data, columns=column_names)
     print(df)
-
-    # TODO: export df to csv file
+    df.to_csv(output_csv_fname)
 
 
 if __name__ == "__main__":
