@@ -44,7 +44,8 @@ increaseByTargetThroughput() {
     local i=$1
     echo "#${i}: started target thr iteration"
 
-    numClients=100
+    # must be at least >= BATCH_SIZE
+    numClients=1500
 
     # unique size arrays
     numOps=(20000 30000 40000 50000 60000 70000 80000)
@@ -110,9 +111,9 @@ increaseByClientCount() {
                 ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${targetThroughput} -p threadcount=${cl} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename}
 
                 echo "#${i}-${workload}/${j}: killing server on remote and copying results"
-                mkdir -p ${rootFolder}/${t}thr/
-                mv -f ${latFilename} ${rootFolder}/${t}thr/
-                ssh root@${etcdHostname} "killall etcd -u root -w; mv -f ${serverMeasurePath}/*.out ${rootFolder}/${t}thr/"
+                mkdir -p ${rootFolder}/${cl}clients/
+                mv -f ${latFilename} ${rootFolder}/${cl}clients/
+                ssh root@${etcdHostname} "killall etcd -u root -w; mv -f ${serverMeasurePath}/*.out ${rootFolder}/${cl}clients/"
 
             else
                 echo "#${i}-${workload}/${j}: launching local server"
@@ -123,9 +124,9 @@ increaseByClientCount() {
                 ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${targetThroughput} -p threadcount=${cl} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename}
 
                 echo "#${i}-${workload}/${j}: killing local server and copying results"
-                mkdir -p ${rootFolder}/${t}thr/
-                mv -f ${latFilename} ${rootFolder}/${t}thr/
-                killall etcd -u root -w; mv -f ${serverMeasurePath}/*.out ${rootFolder}/${t}thr/
+                mkdir -p ${rootFolder}/${cl}clients/
+                mv -f ${latFilename} ${rootFolder}/${cl}clients/
+                killall etcd -u root -w; mv -f ${serverMeasurePath}/*.out ${rootFolder}/${cl}clients/
             fi
         done
     done
