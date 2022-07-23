@@ -8,13 +8,14 @@ isRemoteExecution=true
 isIncreasingByTargetThroughput=true
 
 user=user
-ycsb=/users/${user}/go/src/go-ycsb
+ycsbPath=/users/${user}/go/src/go-ycsb/
 
 etcdHostname="10.10.1.2"
 sleepDurationSec=10
 
 rootFolder=$(pwd)
-measurepath=/tmp
+serverMeasurePath=/tmp
+latFilename=/tmp/ycsb-latency.out
 nodeScript=run-singlenode.sh
 
 workloads=("workloadaprime")
@@ -60,10 +61,12 @@ increaseByTargetThroughput() {
                 sleep ${sleepDurationSec}s
 
                 echo "#${i}-${workload}/${j}: executing $t target throughput"
-                ${ycsb} run etcd -P $path/workloads/${workload} -p target=${t} -p threadcount=${numClients} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname}
+                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${t} -p threadcount=${numClients} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename}
 
                 echo "#${i}-${workload}/${j}: killing server on remote and copying results"
-                ssh root@${etcdHostname} "killall etcd -u root -w; mv -f ${measurepath}/*.out ${rootFolder}/${workload}/${t}thr/"
+                mkdir -p ${rootFolder}/${t}thr/
+                mv -f ${latFilename} ${rootFolder}/${t}thr/
+                ssh root@${etcdHostname} "killall etcd -u root -w; mv -f ${serverMeasurePath}/*.out ${rootFolder}/${t}thr/"
 
             else
                 echo "#${i}-${workload}/${j}: launching local server"
@@ -71,10 +74,12 @@ increaseByTargetThroughput() {
                 sleep ${sleepDurationSec}s
 
                 echo "#${i}-${workload}/${j}: executing $t target throughput"
-                ${ycsb} run etcd -P $path/workloads/${workload} -p target=${t} -p threadcount=${numClients} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname}
-            
+                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${t} -p threadcount=${numClients} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename}
+
                 echo "#${i}-${workload}/${j}: killing local server and copying results"
-                killall etcd -u root -w; mv -f ${measurepath}/*.out ${rootFolder}/${workload}/${t}thr/
+                mkdir -p ${rootFolder}/${t}thr/
+                mv -f ${latFilename} ${rootFolder}/${t}thr/
+                killall etcd -u root -w; mv -f ${serverMeasurePath}/*.out ${rootFolder}/${t}thr/
             fi
         done
     done
@@ -102,10 +107,12 @@ increaseByClientCount() {
                 sleep ${sleepDurationSec}s
 
                 echo "#${i}-${workload}/${j}: executing for $cl clients"
-                ${ycsb} run etcd -P $path/workloads/${workload} -p target=${targetThroughput} -p threadcount=${cl} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname}
+                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${targetThroughput} -p threadcount=${cl} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename}
 
                 echo "#${i}-${workload}/${j}: killing server on remote and copying results"
-                ssh root@${etcdHostname} "killall etcd -u root -w; mv -f ${measurepath}/*.out ${rootFolder}/${workload}/${t}thr/"
+                mkdir -p ${rootFolder}/${t}thr/
+                mv -f ${latFilename} ${rootFolder}/${t}thr/
+                ssh root@${etcdHostname} "killall etcd -u root -w; mv -f ${serverMeasurePath}/*.out ${rootFolder}/${t}thr/"
 
             else
                 echo "#${i}-${workload}/${j}: launching local server"
@@ -113,10 +120,12 @@ increaseByClientCount() {
                 sleep ${sleepDurationSec}s
 
                 echo "#${i}-${workload}/${j}: executing for $cl clients"
-                ${ycsb} run etcd -P $path/workloads/${workload} -p target=${targetThroughput} -p threadcount=${cl} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname}
-            
+                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${targetThroughput} -p threadcount=${cl} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename}
+
                 echo "#${i}-${workload}/${j}: killing local server and copying results"
-                killall etcd -u root -w; mv -f ${measurepath}/*.out ${rootFolder}/${workload}/${t}thr/
+                mkdir -p ${rootFolder}/${t}thr/
+                mv -f ${latFilename} ${rootFolder}/${t}thr/
+                killall etcd -u root -w; mv -f ${serverMeasurePath}/*.out ${rootFolder}/${t}thr/
             fi
         done
     done
