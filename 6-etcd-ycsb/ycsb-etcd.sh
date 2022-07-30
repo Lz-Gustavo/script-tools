@@ -19,6 +19,7 @@ latFilename=/tmp/ycsb-latency.out
 nodeScript=run-singlenode.sh
 
 workloads=("workloadaprime")
+numDiffKeys=1000000 # 1kk
 iterations=1
 
 main() {
