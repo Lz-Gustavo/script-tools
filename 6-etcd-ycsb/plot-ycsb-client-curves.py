@@ -5,7 +5,8 @@ import numpy as np
 import os
 import sys
 
-exp_preffix = "48-"
+exp_preffix = "49-"
+graphs_folder = "graphs/p90/"
 
 def get_array_from_file(filename: str):
     try:
@@ -27,7 +28,7 @@ def get_array_from_file(filename: str):
         sys.exit()
 
 
-def plot_exp_graph(workload: str, exps: list):
+def plot_exp_graph(workload: str, ylimit: float, exps: list):
     config_formats = ["g-o", "b-D", "k-*", "r-^", "y-H"]
 
     for exp in exps:
@@ -52,15 +53,18 @@ def plot_exp_graph(workload: str, exps: list):
 
                 np_thr = np.array(thr)
                 np_lat = np.array(lat)
-            
+
                 ave_thr = np.average(np_thr)
-                ave_lat = np.average(np_lat)
+                #ave_lat = np.average(np_lat)
+                ave_lat = np.percentile(np_lat, 90)
+
                 thrs.append(ave_thr)
                 lats.append(ave_lat)
 
 
             #thrs = np.divide(thrs, 1000)
             lats = np.divide(np.array(lats), 1000000000) # ns -> s
+            plt.ylim([0, ylimit])
             plt.plot(thrs, lats, config_formats[i], label=plot['name'])
             i += 1
 
@@ -68,10 +72,10 @@ def plot_exp_graph(workload: str, exps: list):
         plt.title(exp['name'] + '-' + workload)
         plt.legend(loc='best')
 
-        if not os.path.exists('graphs/'):
-            os.mkdir('graphs/')
+        if not os.path.exists(graphs_folder):
+            os.mkdir(graphs_folder)
 
-        fname = 'graphs/' + exp_preffix + exp['name'] + '-' + workload + '.png'
+        fname = graphs_folder + exp_preffix + exp['name'] + '-' + workload + '.png'
         #print("finished", fname, "...")
         plt.savefig(fname)
         plt.clf()
@@ -79,19 +83,36 @@ def plot_exp_graph(workload: str, exps: list):
 
 def main():
     workloads = ["workloada", "workloadaprime", "workloadalatest", "workloadb", "workloadc", "workloadd"]
+    ylimits = [0.6, 0.4, 0.4, 0.3, 0.3, 0.3]
     configs = [
         {
             "name": "batch300",
             "plots": [
                 {
-                    "name": "SL-300",
+                    "name": "SL",
                     "path": "exp/normal/sl-300",
-                    "clients": [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]	
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
                 },
                 {
-                    "name": "PL-300",
+                    "name": "PL",
                     "path": "exp/normal/pl-300",
-                    "clients": [400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+                },
+                {
+                    "name": "PL-2disks",
+                    "path": "exp/2disks/pl-300",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+
+                },
+                {
+                    "name": "PL-4disks",
+                    "path": "exp/4disks/pl-300",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+                },
+                {
+                    "name": "PL-6disks",
+                    "path": "exp/6disks/pl-300",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
                 }
             ]
         },
@@ -99,14 +120,29 @@ def main():
             "name": "batch600",
             "plots": [
                 {
-                    "name": "SL-600",
+                    "name": "SL",
                     "path": "exp/normal/sl-600",
-                    "clients": [600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200]
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
                 },
                 {
-                    "name": "PL-600",
+                    "name": "PL",
                     "path": "exp/normal/pl-600",
-                    "clients": [600, 800, 1000, 1200, 1400, 1600, 1800, 2000, 2200]
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+                },
+                {
+                    "name": "PL-2disks",
+                    "path": "exp/2disks/pl-600",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+                },
+                {
+                    "name": "PL-4disks",
+                    "path": "exp/4disks/pl-600",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+                },
+                {
+                    "name": "PL-6disks",
+                    "path": "exp/6disks/pl-600",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
                 }
             ]
         },
@@ -116,12 +152,27 @@ def main():
                 {
                     "name": "SL-900",
                     "path": "exp/normal/sl-900",
-                    "clients": [1000, 1200, 1400, 1600, 1800, 2000, 2200]	
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
                 },
                 {
                     "name": "PL-900",
                     "path": "exp/normal/pl-900",
-                    "clients": [1000, 1200, 1400, 1600, 1800, 2000, 2200]	
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+                },
+                {
+                    "name": "PL-2disks",
+                    "path": "exp/2disks/pl-900",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+                },
+                {
+                    "name": "PL-4disks",
+                    "path": "exp/4disks/pl-900",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+                },
+                {
+                    "name": "PL-6disks",
+                    "path": "exp/6disks/pl-900",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
                 }
             ]
         },
@@ -131,19 +182,34 @@ def main():
                 {
                     "name": "SL-1200",
                     "path": "exp/normal/sl-1200",
-                    "clients": [1200, 1400, 1600, 1800, 2000, 2200, 2400]	
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
                 },
                 {
                     "name": "PL-1200",
                     "path": "exp/normal/pl-1200",
-                    "clients": [1200, 1400, 1600, 1800, 2000, 2200, 2400]
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+                },
+                {
+                    "name": "PL-2disks",
+                    "path": "exp/2disks/pl-1200",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+                },
+                {
+                    "name": "PL-4disks",
+                    "path": "exp/4disks/pl-1200",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
+                },
+                {
+                    "name": "PL-6disks",
+                    "path": "exp/6disks/pl-1200",
+                    "clients": [1, 150, 300, 450, 600, 750, 900, 1050, 1200, 1350, 1500, 1650, 1800, 1950, 2100, 2250, 2400]
                 }
             ]
         }
     ]
 
-    for w in workloads:
-        plot_exp_graph(w, configs)
+    for i in range(0, len(workloads)):
+        plot_exp_graph(workloads[i], ylimits[i], configs)
 
 
 if __name__ == "__main__":
