@@ -63,7 +63,7 @@ increaseByTargetThroughput() {
                 sleep ${sleepDurationSec}s
 
                 echo "#${i}-${workload}/${j}: executing $t target throughput"
-                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${t} -p threadcount=${numClients} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename}
+                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${t} -p threadcount=${numClients} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename} -p etcd.thinktime=0
 
                 echo "#${i}-${workload}/${j}: killing server on remote and copying results"
                 mkdir -p ${rootFolder}/${t}thr/
@@ -76,7 +76,7 @@ increaseByTargetThroughput() {
                 sleep ${sleepDurationSec}s
 
                 echo "#${i}-${workload}/${j}: executing $t target throughput"
-                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${t} -p threadcount=${numClients} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename}
+                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${t} -p threadcount=${numClients} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename} -p etcd.thinktime=0
 
                 echo "#${i}-${workload}/${j}: killing local server and copying results"
                 mkdir -p ${rootFolder}/${t}thr/
@@ -109,7 +109,7 @@ increaseByClientCount() {
                 sleep ${sleepDurationSec}s
 
                 echo "#${i}-${workload}/${j}: executing for $cl clients"
-                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${targetThroughput} -p threadcount=${cl} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename}
+                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${targetThroughput} -p threadcount=${cl} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename} -p etcd.thinktime=0
 
                 echo "#${i}-${workload}/${j}: killing server on remote and copying results"
                 mkdir -p ${rootFolder}/${cl}clients/
@@ -122,7 +122,7 @@ increaseByClientCount() {
                 sleep ${sleepDurationSec}s
 
                 echo "#${i}-${workload}/${j}: executing for $cl clients"
-                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${targetThroughput} -p threadcount=${cl} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename}
+                ${ycsbPath}/bin/go-ycsb run etcd -P ${ycsbPath}/workloads/${workload} -p target=${targetThroughput} -p threadcount=${cl} -p recordcount=${numDiffKeys} -p operationcount=${n} -p etcd.hostname=${etcdHostname} -p etcd.latfilename=${latFilename} -p etcd.thinktime=0
 
                 echo "#${i}-${workload}/${j}: killing local server and copying results"
                 mkdir -p ${rootFolder}/${cl}clients/
