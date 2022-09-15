@@ -48,7 +48,7 @@ doRemoteExecution() {
     ssh root@${etcdHostname} "rm ${recovPath}/*; rm -r ${etcdPath}/*"
 
     echo "#${i}: preparing files"
-    ssh root@${etcdHostname} "mkdir -p ${recovPath}; cp ${rootFolder}/${logFiles} ${recovPath}; tar -xzvf ${recovPath}/${logFiles} -C ${recovPath} --strip-components 1; rm ${recovPath}/${logFiles}"
+    ssh root@${etcdHostname} "mkdir -p ${recovPath}; cp ${rootFolder}/${logFiles} ${recovPath}; tar -xzf ${recovPath}/${logFiles} -C ${recovPath} --strip-components 1; rm ${recovPath}/${logFiles}"
 
     echo "#${i}: launching server on remote"
     ssh root@${etcdHostname} "${rootFolder}/../${nodeScript}" &
@@ -68,7 +68,7 @@ doLocalExecution() {
     rm ${recovPath}/* && rm -r ${etcdPath}/*
 
     echo "#${i}: preparing files"
-    mkdir -p ${recovPath} && cp ${rootFolder}/${logFiles} ${recovPath} && tar -xzvf ${recovPath}/${logFiles} -C ${recovPath} --strip-components 1 && rm ${recovPath}/${logFiles}
+    mkdir -p ${recovPath} && cp ${rootFolder}/${logFiles} ${recovPath} && tar -xzf ${recovPath}/${logFiles} -C ${recovPath} --strip-components 1 && rm ${recovPath}/${logFiles}
 
     echo "#${i}: launching local server"
     ${rootFolder}/../${nodeScript} &

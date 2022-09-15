@@ -3,7 +3,7 @@
 # The benchmark run over two different configurations...
 isIncreasingByTargetThroughput=false
 
-user=gustavo
+user=user
 ycsbPath=/users/${user}/go/src/go-ycsb/
 
 etcdHostname="localhost"
@@ -69,7 +69,7 @@ increaseByTargetThroughput() {
             mkdir -p ${rootFolder}/${workload}/${t}thr/
 
             killall etcd -u root -w
-            tar -czvf ${logsDiskPath}/${outputTarName} ${walsLocation}; mv ${logsDiskPath}/${outputTarName} ${rootFolder}/${workload}/${t}thr/
+            tar -czf ${logsDiskPath}/${outputTarName} -C ${walsLocation} .; mv ${logsDiskPath}/${outputTarName} ${rootFolder}/${workload}/${t}thr/
         done
     done
     echo "#${i}: finished target thr iteration"; echo ""
@@ -100,7 +100,7 @@ increaseByClientCount() {
             mkdir -p ${rootFolder}/${workload}/${cl}clients/
 
             killall etcd -u root -w
-            tar -czvf ${logsDiskPath}/${outputTarName} ${walsLocation}; mv ${logsDiskPath}/${outputTarName} ${rootFolder}/${workload}/${cl}clients/
+            tar -czf ${logsDiskPath}/${outputTarName} -C ${walsLocation} .; mv ${logsDiskPath}/${outputTarName} ${rootFolder}/${workload}/${cl}clients/
         done
     done
     echo "#${i}: finished clients iteration"; echo ""
