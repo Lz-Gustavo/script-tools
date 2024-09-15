@@ -10,14 +10,18 @@ output_dir="csv/"
 output_csv_fname="RECOV-RESULTS.csv"
 
 def ExtractData(filename):
-    fd = open(filename)
-    text = fd.readlines()
-    fd.close()
+    try:
+        fd = open(filename)
+        text = fd.readlines()
+        fd.close()
 
-    data = []
-    for i in range(0, len(text)):
-        data.append(int(text[i]))
-    return data
+        data = []
+        for i in range(0, len(text)):
+            data.append(int(text[i]))
+        return data
+
+    except Exception as e:
+        print("failed extracting file data for", filename, "err:", e)
 
 
 def GenerateResultsCSV(names, workloads, ave_read_times, ave_receive_times, ave_apply_times, ave_total_times, stddev_read_times, stddev_receive_times, stddev_apply_times, stddev_total_times):
@@ -163,8 +167,8 @@ def main():
             fn = path + "/" + str(i) + recov_fname
             data = ExtractData(fn)
             if len(data) < 4:
-                print("incomplete data returned")
-                return
+                print("incomplete data returned for", fn, "skipping...")
+                continue
 
             read_times_ns.append(data[1] - data[0])
             total_times_ns.append(data[len(data)-1] - data[0])
